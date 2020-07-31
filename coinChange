@@ -1,0 +1,132 @@
+#include<iostream>
+#include<vector>
+#include<unordered_map>
+using namespace std;
+
+//给你k种⾯值的硬币,⾯值分别为c1,c2...ck每种硬币的数量⽆限,再给⼀个总⾦额amount,
+//问你最少需要⼏枚硬币凑出这个⾦额，如果不可能凑出,算法返回 -1 。
+
+// coins中是可选硬币⾯值，amount是⽬标⾦额
+
+//? 1.暴力递归
+int dp(int n,vector<int>& coins);
+int coinChange(vector<int>& coins,int amount)
+{
+    return dp(amount,coins);
+
+}
+// dp[n]=x表示当金额为n时，至少需要x枚金币
+int dp(int n,vector<int>& coins)
+{
+    //base case
+    //有解
+    if(n==0) return 0;
+    //无解
+    if(n<0) return -1;
+
+    int res = INT_MAX;
+    int subproblem = 0;
+    for(int coin:coins)
+    {
+        subproblem = dp(n-coin,coins);
+        if(subproblem == -1)
+            continue;
+        res = min(res,1+subproblem);
+    }
+    if (res != INT_MAX)
+        return res;
+}
+
+
+//? 2.带备忘录的递归
+
+int coinChange2(vector<int>& coins,int amount)
+{
+    int n = coins.size();
+    vector<int> memo(n+1,0);
+    return dp(amount,coins);
+
+}
+int dp(int n,vector<int>& coins,vector<int>& memo)
+{
+    
+    if(memo[n]!=0) return memo[n];
+    if(n<0) return -1;
+    if(n==0) return 0;
+    int res = INT_MAX;
+    int subproblem = 0;
+    for(int coin:coins)
+    {
+        subproblem = dp(n-coin,coins,memo);
+        if(subproblem == -1)
+            continue;
+        res = min(res,1+subproblem);
+        memo[n] = res;
+    }
+    if(res != INT_MAX)
+        return res;
+
+}
+//? 用哈希表存储dp数组
+int dp(int n,vector<int>& coins,unordered_map<int,int>& memo);
+int coinChange3(vector<int>& coins,int amount)
+{
+    int n = coins.size();
+    
+    unordered_map<int,int> map;
+    return dp(amount,coins,map);
+
+}
+int dp(int n,vector<int>& coins,unordered_map<int,int>& memo)
+{
+    
+    if(memo[n]) return memo[n];
+    if(n<0) return -1;
+    if(n==0) return 0;
+    int res = INT_MAX;
+    int subproblem = 0;
+    for(int coin:coins)
+    {
+        subproblem = dp(n-coin,coins,memo);
+        if(subproblem == -1)
+            continue;
+        res = min(res,1+subproblem);
+        memo[n] = res;
+    }
+    if(res != INT_MAX)
+        return res;
+
+}
+
+//? 3.dp数组的迭代解法
+int coinChange4(vector<int>& coins,int amount)
+{
+    //数组⼤⼩为amount+1，初始值也为amount+1
+    //因为凑成amount⾦额的硬币数最多只可能等于amount（全⽤ 1 元⾯值的硬币），
+    //所以初始化为amount+1就相当于初始化为正⽆穷，便于后续取最⼩值。
+    vector<int> dp(amount+1,amount+1);
+    //base case
+    dp[0] = 0;
+    for(int i=1;i<dp.size();++i)
+    {
+        for(int coin:coins)
+        {
+            if(i-coin < 0) continue;
+            //状态转移方程
+            dp[i] = min(dp[i],1+dp[i-coin]);
+        }
+    }
+    return dp[amount] == amount+1 ? -1:dp[amount]; 
+}
+
+int main()
+{
+    vector<int> coins = {1,2,4,5,6};
+    int amount = 18;
+    //cout<<coinChange(coins,amount)<<endl;
+    //cout<<coinChange2(coins,amount)<<endl;
+    cout<<coinChange3(coins,amount)<<endl;
+    cout<<coinChange4(coins,amount)<<endl;
+    system("pause");
+    return 0;
+}
