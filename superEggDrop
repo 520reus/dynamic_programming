@@ -1,0 +1,51 @@
+#include<iostream>
+#include<vector>
+
+using namespace std;
+//* 经典动态规划问题：高楼扔鸡蛋
+/*
+题目描述：你面前有一栋从1到N共N层的楼，然后给你K个鸡蛋(k至少为1)
+现在确定这栋楼存在楼层0<=F<=N,在这层楼将鸡蛋扔下去，鸡蛋恰好没摔碎(高于F的楼层会碎，
+低于F的楼层都不会碎，现在问你，最坏情况下，你至少要扔几次鸡蛋，才能确定这个楼层F呢？)
+?DP框架思考：这个问题有什么状态，有什么选择，然后穷举
+状态：当前拥有的鸡蛋数K和需要测试的楼层数N
+选择：选择去哪层楼扔鸡蛋
+DP思路：明确了状态和选择，肯定是个二维的dp数组或者带有两个状态参数的dp函数来表示状态转移；
+外加一个for循环来遍历所有选择，选择最优的更新状态
+ */
+//函数功能：求最坏情况下，至少需要扔几次鸡蛋，才能确定最终的楼层F
+//输入：K:鸡蛋的个数 N：楼层的层数
+//输出：最少扔鸡蛋的次数
+int dp(int K,int N,vector<vector<int>>& memo);
+int superEggDrop(int K,int N)
+{
+    vector<vector<int>> memo(K+1,vector<int>(N+1,INT_MAX));
+    return dp(K,N,memo);
+}
+//当前状态下，最坏情况下，至少需要扔鸡蛋的次数
+int dp(int K,int N,vector<vector<int>>& memo)
+{
+    //备忘录,剪枝,消除重叠子问题
+    if(memo[K][N] != INT_MAX) return memo[K][N];
+    //base case 1:楼层数为0时，肯定不需要扔鸡蛋来确定楼层了
+    if(N == 0) return 0;
+    //base case 2：只有一个鸡蛋时，最坏情况就是第N层时鸡蛋才碎
+    if(K == 1) return N;
+    int res = INT_MAX;
+    //做选择。既然不知道应该在哪层楼开始扔，就都试一遍，要相信dp函数可以完成正确的状态转移，并最终取最优的那个选择
+    for(int i=1;i<=N;++i)
+    {
+        //问题求最小值，所以所有结果中取最小的那个；最坏情况对应着碎还是不碎中选最大的那个，+1代表扔出一次鸡蛋
+        res = min(res,1+max(dp(K-1,i-1,memo),dp(K,N-i,memo)));
+         
+    }
+    memo[K][N] = res;
+    return res;
+}
+
+int main()
+{
+    cout<<superEggDrop(2,100)<<endl;
+    system("pause");
+    return 0;
+}
