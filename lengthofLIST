@@ -1,0 +1,40 @@
+#include<iostream>
+#include<vector>
+using namespace std;
+/* 
+题目描述：给定一个无序的整数数组，找到其中最长上升子序列的长度
+示例：
+输入：[10,9,2,5,3,7,101,18]
+输出：4
+解释：最长的上升子序列是[2,3,7,101],它的长度是4
+
+ */
+//动态规划解法(o(n^2))
+int lengthofLIST(vector<int>& list)
+{
+    int n = list.size();
+    //dp[i]表示以list[i]为结尾的最长递增子序列的长度，初始化为1是因为子序列最少还要包含自己，所有长度最小为1
+    vector<int> dp(n,1);
+    
+    for(int i=0;i<n;++i)
+        for(int j=0;j<i;++j)
+            //想求第i个序列的最长子序列，只需比前面的子序列比list[i]小，然后在dp[0]-dp[i-1]去找最大的再+1
+            if(list[i] > list[j])
+                dp[i] = max(dp[i],1+dp[j]);
+    //dp数组中最大的就是最长递增子序列的长度
+    int res = 0;
+    for(int x:dp)
+    {
+        res = max(res,x);
+    }
+    return res;
+
+}
+
+int main()
+{
+    vector<int> list = {10,9,2,5,3,7,1,2};
+    cout<<lengthofLIST(list)<<endl;
+    system("pause");
+    return 0;
+}
