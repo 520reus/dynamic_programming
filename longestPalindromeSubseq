@@ -1,0 +1,42 @@
+#include<iostream>
+#include<vector>
+using namespace std;
+
+//*动态规划解决最长回文子序列问题
+
+
+ int longestPalindromeSubseq(string s)
+ {
+    int n = s.size();
+    //dp[i,j]的含义是：子串s[i..j]的最长回文子序列的长度，初始化为nxn的零矩阵
+    vector<vector<int>> dp(n,vector<int>(n,0));
+    //*i==j时，只有一个字符，最长子序列只能是1;i>j时没有意义，最长子序列为0
+    //*所以dp数组的对角线全为1，左下角全为0，最终状态是dp[0][n-1]在右上角
+    //对角线元素赋值为1
+    for(int i=0;i<n;++i)
+    dp[i][i] = 1;
+    //*dp[i][j]由左、右、左下三个方向的转移得到，而最终状态在右上角，而对角线和左下角均为已知
+    //*为了达到终点，选择反着遍历，即从下向上，从左向右的方式进行迭代
+    for(int i=n-1;i>=0;--i)
+    {
+        for(int j=i+1;j<n;++j)
+        {
+            //两个字符相同，则最长子序列在前者的基础上+2
+            if(s[i] == s[j])
+                dp[i][j] = 2+dp[i+1][j-1];
+            else
+            //两个字符不同，则从s[i+1][j]与s[i][j-1]中取较大者即可
+                dp[i][j] = max(dp[i+1][j],dp[i][j-1]);
+        }
+    }
+    //返回目标状态
+    return dp[0][n-1];
+ }
+
+ int main()
+ {
+     string s = "sbadcddabs";
+     cout<<longestPalindromeSubseq(s)<<endl;
+     system("pause");
+     return 0;
+ }
